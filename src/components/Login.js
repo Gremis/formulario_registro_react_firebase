@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { auth } from "../firebaseconfig";
+import { useHistory } from "react-router-dom";
 
 const Login = () => {
+  const historico = useHistory();
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [msgerror, setMsgError] = useState(null);
@@ -10,13 +12,28 @@ const Login = () => {
     e.preventDefault();
     auth
       .createUserWithEmailAndPassword(email, pass)
-      .then((r) => alert("Usuario registrado"))
+      .then((r) => {
+        historico.push("/");
+      })
       .catch((e) => {
         if (e.code == "auth/invalid-email") {
           setMsgError("Formato Email Inválido");
         }
         if (e.code == "auth/weak-password") {
           setMsgError("A senha deve ter 6 caracteres o mais");
+        }
+      });
+  };
+
+  const LoginUsuario = () => {
+    auth
+      .signInWithEmailAndPassword(email, pass)
+      .then((r) => {
+        historico.push("/");
+      })
+      .catch((err) => {
+        if (err.code == "auth/wrong-password") {
+          setMsgError("password inválido");
         }
       });
   };
@@ -48,6 +65,9 @@ const Login = () => {
             type="submit"
           />
         </form>
+        <button onClick={LoginUsuario} className="btn btn-success btn-block">
+          Conecte-se
+        </button>
         {msgerror != null ? <div>{msgerror}</div> : <span></span>}
       </div>
       <div className="col"></div>
